@@ -36,51 +36,56 @@ def searchCourse(string):
     Click50 = driver.find_element_by_xpath('''//*[@id="searchResultsTable"]/div[2]/div/div[3]/select/option[4]''').click()
     time.sleep(5) #Might take a second to load all 50, don't want to get ahead of ourselves here
 
-    ClassCount = findAmountOfCourses()
-    for i in range(ClassCount):
-        course_info = getCourseInfo()
+    ClassElements = driver.find_elements_by_class_name("section-details-link")
+    # print(len(ClassElements))
+    
+    for i in ClassElements:
+
+        course_info = getCourseInfo(i)
         print(course_info)
+        time.sleep(2)
         goToNextCourse()
 
-    raise Exception
+    
 
 def goToNextCourse():
-    close = driver.find_element_by_xpath("""/html/body/div[176]/div[11]/div/button""").click()
-
-    raise Exception
-
-def findAmountOfCourses():
-    column_count = len(driver.find_elements_by_xpath("//table[@id='table1']/tbody/tr"))
-    return column_count
-
-def getCourseInfo():
-    section = driver.find_element_by_xpath('''//*[@id="table1"]/tbody/tr[1]/td[6]/a''').click()
-    info = getMeetingTimes()
-    return info
-
-def getMeetingTimes():
-    dateAndTime = driver.find_element_by_xpath("""//*[@id="facultyMeetingTimes"]/a""").click()
-
-    title = driver.find_element_by_xpath("""//*[@id="202001.18320div"]/div""")
-    raise Exception
-    date = title.get_attribute("innerHTML")
-    print(date)
-
-    time.sleep(3)
-
-    classTime = driver.find_element_by_xpath("""//*[@id="classDetailsContentDetailsDiv"]/div/div[2]/div/div[2]/div[1]""")
-    classTime = classTime.get_attribute("innerHTML")
-
-    classTime = re.sub(r'(?is)<span>', '', classTime) #remove spans
-    classTime = re.sub(r'(?is)</span>', '', classTime)
-
-    print(classTime.strip())
-
-    extras = driver.find_element_by_xpath("""//*[@id="classDetailsContentDetailsDiv"]/div/div[2]/div/div[2]/div[2]""").text
+    close = driver.find_element_by_xpath("""/html/body/div[176]/div[11]/div/button""").click()#Exit current course
+    # print("Going to next course")
     
-    buildingAndRoom = parseExtras(extras)
-    print(buildingAndRoom)
-    return [date, classTime, buildingAndRoom]
+
+def getCourseInfo(course):
+    # print(course)
+    section = course.click() #Clicked on the section
+    dateAndTime = getDateAndTime()
+    capacity = getCapacity()
+
+    raise Exception
+
+def getCapacity():
+    info = driver.find_element_by_id("enrollmentInfo").click()
+
+def getDateAndTime():  
+    classDAT = driver.find_element_by_id("facultyMeetingTimes").click()
+    time.sleep(1)
+    timeAndLoc = driver.find_element_by_class_name("right").get_attribute("innerHTML")
+
+    timeAndLoc = re.sub(r'(?is)<span>', '', timeAndLoc)
+    timeAndLoc = re.sub(r'(?is)</span>', '', timeAndLoc)
+    timeOfClass, loc = timeAndLoc.split("</div>",1)
+    timeOfClass = re.sub(r'(?is)<div>', '', timeOfClass)
+    loc = re.sub(r'(?is)<div>', '', loc)
+    loc = re.sub(r'(?is)</div>', '', loc)
+
+    locInfo = loc.split("|")
+    loc = locInfo[1].split()[0] + " " + locInfo[2].split()[-1]
+    
+    
+    daysOfWeek = driver.find_element_by_class_name("ui-pillbox")
+    daysOfWeek = daysOfWeek.get_attribute("title")
+    daysOfWeek = daysOfWeek.split()[-1]
+
+    return [daysOfWeek, timeOfClass, loc]
+
 
 def parseExtras(extras):
     items = extras.split("|")

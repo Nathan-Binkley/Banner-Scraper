@@ -40,29 +40,47 @@ def searchCourse(string):
     # print(len(ClassElements))
     
     for i in ClassElements:
-
-        course_info = getCourseInfo(i)
+        try:
+            course_info = getCourseInfo(i)
+        except:
+            print("NO COURSE INFO")
         print(course_info)
         time.sleep(2)
         goToNextCourse()
+        time.sleep(2)
 
-    
 
 def goToNextCourse():
     close = driver.find_element_by_xpath("""/html/body/div[176]/div[11]/div/button""").click()#Exit current course
     # print("Going to next course")
-    
 
 def getCourseInfo(course):
     # print(course)
     section = course.click() #Clicked on the section
+    time.sleep(1)
     dateAndTime = getDateAndTime()
+    print(dateAndTime)
     capacity = getCapacity()
+    print(capacity)
+    dateAndTime.append(capacity)
+    allInfo = dateAndTime
+    return allInfo
 
-    raise Exception
+    
 
 def getCapacity():
     info = driver.find_element_by_id("enrollmentInfo").click()
+    time.sleep(1)
+    details = driver.find_element_by_id("classDetailsContentDetailsDiv").get_attribute("innerHTML")
+    return getMaxCapacity(details)
+    
+def getMaxCapacity(details):
+    
+    items = details.split("\n")
+    
+    details = items[3]
+    details = re.sub('<[^>]+>', '', details)
+    return details
 
 def getDateAndTime():  
     classDAT = driver.find_element_by_id("facultyMeetingTimes").click()
@@ -91,7 +109,7 @@ def parseExtras(extras):
     items = extras.split("|")
     building = items[1]
     building = building.split()[0]
-    print(building)
+    
 
     room = items[2]
     room = room.split()[-1]

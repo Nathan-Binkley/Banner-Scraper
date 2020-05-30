@@ -5,6 +5,13 @@ from selenium.webdriver.common.keys import Keys
 import re
 import time
 
+'''
+TODO: 
+After it completes, go to next search term
+'''
+
+
+
 courses = []
 
 ChromePath = r"C:\Users\nbink\Documents\GitHub\Banner-Scraper\chromedriver.exe"
@@ -45,9 +52,9 @@ def searchCourse(string):
             course_info = ''
             try:
                 course_info = getCourseInfo(i)
+                print(course_info)
             except:
                 print("NO COURSE INFO")
-            print(course_info)
             time.sleep(2)
             try:
                 goToNextCourse()
@@ -59,7 +66,7 @@ def searchCourse(string):
             time.sleep(10)
         except:
             break
-    
+    raise Exception
 
 
 def goToNextCourse():

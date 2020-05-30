@@ -36,32 +36,42 @@ def searchCourse(string):
     Click50 = driver.find_element_by_xpath('''//*[@id="searchResultsTable"]/div[2]/div/div[3]/select/option[4]''').click()
     time.sleep(5) #Might take a second to load all 50, don't want to get ahead of ourselves here
 
-    ClassElements = driver.find_elements_by_class_name("section-details-link")
     # print(len(ClassElements))
     
-    for i in ClassElements:
-        try:
-            course_info = getCourseInfo(i)
+
+    while True:
+        ClassElements = driver.find_elements_by_class_name("section-details-link")
+        for i in ClassElements:
+            course_info = ''
+            try:
+                course_info = getCourseInfo(i)
+            except:
+                print("NO COURSE INFO")
+            print(course_info)
+            time.sleep(2)
+            try:
+                goToNextCourse()
+            except:
+                pass
+            time.sleep(2)
+        try: 
+            gotoNextPage = driver.find_element_by_class_name("paging-control.next.ltr.enabled").click()
+            time.sleep(10)
         except:
-            print("NO COURSE INFO")
-        print(course_info)
-        time.sleep(2)
-        goToNextCourse()
-        time.sleep(2)
+            break
+    
 
 
 def goToNextCourse():
-    close = driver.find_element_by_xpath("""/html/body/div[176]/div[11]/div/button""").click()#Exit current course
-    # print("Going to next course")
+    close = driver.find_element_by_class_name("""ui-button.ui-widget.ui-state-default.ui-corner-all.ui-button-text-only.primary-button.small-button""").click() #Exit current course (Close button)
+    
 
 def getCourseInfo(course):
     # print(course)
     section = course.click() #Clicked on the section
     time.sleep(1)
     dateAndTime = getDateAndTime()
-    print(dateAndTime)
     capacity = getCapacity()
-    print(capacity)
     dateAndTime.append(capacity)
     allInfo = dateAndTime
     return allInfo
@@ -80,6 +90,12 @@ def getMaxCapacity(details):
     
     details = items[3]
     details = re.sub('<[^>]+>', '', details)
+    splitDeets = details.split()
+    details = []
+    for i in splitDeets:
+        if i:
+            details.append(i)
+
     return details
 
 def getDateAndTime():  

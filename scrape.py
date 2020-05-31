@@ -53,6 +53,8 @@ def searchCourse(string):
             try:
                 course_info = getCourseInfo(i)
                 print(course_info)
+                with open("Info.txt", "a+") as f:
+                    f.write("/".join(course_info[0].split(",")) + " " + course_info[1] + " " + course_info[2] + " " + " ".join((course_info[3])) + "\n")
             except:
                 print("NO COURSE INFO")
             time.sleep(2)
@@ -154,4 +156,4 @@ def getCourseList():
 getCourseList()
 for i in courses: 
     initialize()
-    searchCourse("CPSC")
+    searchCourse(str(i))

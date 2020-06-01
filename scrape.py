@@ -51,12 +51,15 @@ def searchCourse(string):
         for i in ClassElements:
             course_info = ''
             try:
-                course_info = getCourseInfo(i)
-                print(course_info)
+                course_info = getCourseInfo(i) # returns [Days (separated by commas), time of the course, location, [maximum occupancy]]
                 with open("Info.txt", "a+") as f:
-                    f.write("/".join(course_info[0].split(",")) + " " + course_info[1] + " " + course_info[2] + " " + " ".join((course_info[3])) + "\n")
-            except:
-                print("NO COURSE INFO")
+                    try:
+                        f.write("/".join(course_info[0].split(",")) + " " + course_info[1] + " " + course_info[2] + " " + " ".join((course_info[3])) + "\n")
+                    except:
+                        f.write("\n")
+            except Exception as e:
+                print(course_info)
+                print(e)
             time.sleep(2)
             try:
                 goToNextCourse()
@@ -76,13 +79,24 @@ def goToNextCourse():
     
 
 def getCourseInfo(course):
-    # print(course)
-    section = course.click() #Clicked on the section
+
+    section = course.click()
+     #Clicked on the section
     time.sleep(1)
+    #Get the course section (Helpful immensely for debugging)
+    courseSection = driver.find_element_by_id("sectionNumber").text
+    with open("Info.txt", "a+") as f:
+        f.write(course.text + " " + courseSection + " [|] ")
+    time.sleep(1)
+
     dateAndTime = getDateAndTime()
+    # print(dateAndTime)
     capacity = getCapacity()
+    # print(capacity)
     dateAndTime.append(capacity)
+
     allInfo = dateAndTime
+    # print(allInfo)
     return allInfo
 
     
@@ -112,6 +126,7 @@ def getDateAndTime():
     time.sleep(1)
     timeAndLoc = driver.find_element_by_class_name("right").get_attribute("innerHTML")
 
+    # Remove all of the HTML that's going to be here
     timeAndLoc = re.sub(r'(?is)<span>', '', timeAndLoc)
     timeAndLoc = re.sub(r'(?is)</span>', '', timeAndLoc)
     timeOfClass, loc = timeAndLoc.split("</div>",1)
@@ -119,6 +134,7 @@ def getDateAndTime():
     loc = re.sub(r'(?is)<div>', '', loc)
     loc = re.sub(r'(?is)</div>', '', loc)
 
+    #Get location info from "CLEMSON | BUILDING | ROOM" format
     locInfo = loc.split("|")
     loc = locInfo[1].split()[0] + " " + locInfo[2].split()[-1]
     
@@ -130,7 +146,7 @@ def getDateAndTime():
     return [daysOfWeek, timeOfClass, loc]
 
 
-def parseExtras(extras):
+def parseExtras(extras): # parsing the extra bits (room and building)
     items = extras.split("|")
     building = items[1]
     building = building.split()[0]
@@ -163,8 +179,10 @@ for i in courses:
         break
     try:
         with open("Info.txt", "a+") as f:
-            f.write(i)
+            f.write(i+"\n")
         searchCourse(str(i))   
+        with open("Info.txt", "a+") as f:
+            f.write("\n\n")
     except Exception as e:
         print(e) 
         

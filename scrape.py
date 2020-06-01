@@ -154,9 +154,16 @@ def getCourseList():
     
 
 getCourseList()
-for i in courses: 
-    initialize()
+for i in courses:
+    try: 
+        initialize()
+    except Exception as e:
+        print(e)
+        print(i)
+        break
     try:
+        with open("Info.txt", "a+") as f:
+            f.write(i)
         searchCourse(str(i))   
     except Exception as e:
         print(e) 

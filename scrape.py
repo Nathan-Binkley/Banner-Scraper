@@ -68,7 +68,7 @@ def searchCourse(string):
             time.sleep(10)
         except:
             break
-    raise Exception
+    
 
 
 def goToNextCourse():
@@ -156,4 +156,8 @@ def getCourseList():
 getCourseList()
 for i in courses: 
     initialize()
-    searchCourse(str(i))
+    try:
+        searchCourse(str(i))   
+    except Exception as e:
+        print(e) 
+        
